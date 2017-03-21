@@ -1,0 +1,40 @@
+
+/*
+ *	Backend Styles
+ *
+*/
+
+.postbox .syncline-polls > li {
+	display: inline-block; 
+	padding: 10px; 
+	text-align: center;
+	width: 45%;
+}           
+.postbox .syncline-polls > li table {
+	background: #f1f1f1;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.postbox .syncline-polls caption {
+    font-size: 1.2em;
+    font-weight: bold;
+    background: #f1f1f1;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    border: 1px solid #DDD;      
+}
+.postbox .syncline-polls .points {
+    color: white;
+    background: darkslategray;
+    padding: 2px 8px;
+    border-radius: 14px;
+}
+
+
+@media  screen and (max-width : 768px)  {
+    .postbox .syncline-polls > li {
+        width: 100%;
+    }
+}  
