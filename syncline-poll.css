@@ -4,20 +4,24 @@
  *
 */
 
-.postbox .syncline-polls > li {
-	display: inline-block; 
+#syncline-poll {
 	padding: 10px; 
 	text-align: center;
 	width: 45%;
-}           
-.postbox .syncline-polls > li table {
+}
+#syncline-poll > h2 {
+    font-size: 1.3em;
+    font-weight: bold;
+    margin-top: 30px;
+}          
+#syncline-poll > table {
 	background: #f1f1f1;
     border-left: 1px solid #ddd;
     border-right: 1px solid #ddd;
     border-bottom: 1px solid #ddd;
 }
 
-.postbox .syncline-polls caption {
+#syncline-poll caption {
     font-size: 1.2em;
     font-weight: bold;
     background: #f1f1f1;
@@ -25,7 +29,7 @@
     padding-bottom: 6px;
     border: 1px solid #DDD;      
 }
-.postbox .syncline-polls .points {
+#syncline-poll .points {
     color: white;
     background: darkslategray;
     padding: 2px 8px;
@@ -34,7 +38,7 @@
 
 
 @media  screen and (max-width : 768px)  {
-    .postbox .syncline-polls > li {
+    #syncline-poll {
         width: 100%;
     }
 }  
