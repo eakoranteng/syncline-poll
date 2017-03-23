@@ -1,13 +1,59 @@
+/*
+ *  frontend Styles
+ *
+ */
+ .syncline-poll {
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+}
+.syncline-poll .vote-btn .dashicons {
+    font-size: 46px;
+    height: auto;
+    width: auto;
+}
+.syncline-poll .vote-btn {
+    border-radius: 100%;
+    background: #eee;
+    padding: 10px 11px;
+    margin: 10px 0;
+}
+.syncline-poll .vote-btn .dashicons-thumbs-up {
+    color: #167b16;
+}
+.syncline-poll .vote-btn .dashicons-thumbs-down {
+    color: #e03030;
+}
+.syncline-poll .points {
+    color: white;
+    background: darkslategray;
+    padding: 2px 8px;
+    border-radius: 14px;
+}
+.syncline-poll caption {
+    font-size: 1.2em;
+    font-weight: bold;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    border: 1px solid #DDD;      
+}
+.syncline-poll-widget .points {
+    color: white;
+    background: darkslategray;
+    padding: 2px 8px;
+    border-radius: 14px;
+}
+
 
 /*
  *	Backend Styles
  *
-*/
-
-#syncline-poll {
-	padding: 10px; 
-	text-align: center;
-	width: 45%;
+ */
+ #syncline-poll {
+   padding: 10px; 
+   text-align: center;
+   width: 45%;
 }
 #syncline-poll > h2 {
     font-size: 1.3em;
@@ -41,4 +87,4 @@
     #syncline-poll {
         width: 100%;
     }
-}  
+} 

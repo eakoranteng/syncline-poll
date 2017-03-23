@@ -45,7 +45,7 @@
 								<table class="form-table">
 									<caption><?php echo $syncline_poll_name; ?></caption>
 									<tr>
-										<td scope="row">
+										<td>
 											<img width="60px" src="<?php echo $sp_plugin_url . '/images/yes.png'; ?>">
 											<p><span class="points"><?php echo $syncline_poll_yes; ?> votes</span></p>
 										</td>

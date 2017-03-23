@@ -59,7 +59,7 @@ function syncline_poll_options_page() {
 		update_option('syncline_poll', $options);
 	}
 	$options = get_option('syncline_poll');
-	// var_dump($options['syncline_poll_yes']);
+	
 	if ($options != '') {
 		$syncline_poll_name = $options['syncline_poll_name'];
 		$syncline_poll_yes = $options['syncline_poll_yes'];
@@ -87,6 +87,7 @@ class Syncline_Poll_Widget extends WP_Widget {
 	function widget( $args, $instance ) {
 		// Widget output
 		extract($args);
+		global $sp_plugin_url;
 		$title = apply_filters('widget_title', $instance['title']);
 
 		$options = get_option('syncline_poll');
@@ -114,16 +115,66 @@ class Syncline_Poll_Widget extends WP_Widget {
 	}
 }
 
+
 function syncline_poll_register_widgets() {
 	register_widget( 'Syncline_Poll_Widget' );
 }
 add_action( 'widgets_init', 'syncline_poll_register_widgets' );
 
 
-function syncline_poll_styles() {
-	wp_enqueue_style('syncline_poll_styles', plugins_url('syncline-poll/syncline-poll.css'));
+function syncline_poll_shortcode($atts, $content = null) {
+	global $post;
+	global $sp_plugin_url;
+
+	$options = get_option('syncline_poll');
+	$syncline_poll_name = $options['syncline_poll_name'];
+	$syncline_poll_yes = $options['syncline_poll_yes'];
+	$syncline_poll_no = $options['syncline_poll_no'];
+
+	ob_start();
+	require 'inc/shortcode.php';
+	$content = ob_get_clean();
+	return $content;
 }
-add_action('admin_head', 'syncline_poll_styles');
+add_shortcode('syncline-poll', 'syncline_poll_shortcode');
+
+
+function syncline_poll_count() {
+	$options = get_option('syncline_poll');
+	$feedback = $_POST['feedback'];
+	if ($feedback == "yes") {
+		$options['syncline_poll_yes'] += 1;
+	} else {
+		$options['syncline_poll_no'] += 1;
+	}
+	update_option('syncline_poll', $options);
+	echo $feedback;
+	wp_die();
+}
+add_action('wp_ajax_syncline_poll_count', 'syncline_poll_count');
+
+
+function enable_ajax() {
+?>
+	<script>
+		var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
+	</script>
+<?php
+}
+add_action('wp_head', 'enable_ajax');
+
+
+function backend_assets() {
+	wp_enqueue_style('syncline_poll_css', plugins_url('syncline-poll/syncline-poll.css'));
+}
+add_action('admin_head', 'backend_assets');
+
+
+function frontend_assets() {
+	wp_enqueue_style('syncline_poll_css', plugins_url('syncline-poll/syncline-poll.css'));
+	wp_enqueue_script('syncline_poll_js', plugins_url('syncline-poll/syncline-poll.js'), array('jquery'), '', true);
+}
+add_action('wp_enqueue_scripts', 'frontend_assets');
 
 
 
