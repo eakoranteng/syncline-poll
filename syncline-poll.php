@@ -201,7 +201,7 @@ add_action('wp_enqueue_scripts', 'frontend_assets');
  *
 */
 function clean_db() {
-	delete_option('syncline-poll');
+	delete_option('syncline_poll');
 }
 register_uninstall_hook(__FILE__, 'clean_db');
 
