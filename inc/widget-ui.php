@@ -1,9 +1,12 @@
+<?php 		
+echo $before_widget;
+echo $before_title . $title . $after_title;	
+?>
+
 <?php 
 	if (!empty($options)) {
 ?>
-
-<table class="syncline-poll shortcode">
-	<caption><?php echo $syncline_poll_name; ?></caption>
+<table class="syncline-poll widget">
 	<tr class="vote">
 		<td class="yes">
 			<button class="vote-btn">
@@ -33,3 +36,6 @@
 
 <?php } ?>
 
+<?php
+echo $after_widget; 
+?>

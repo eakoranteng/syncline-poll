@@ -1,9 +1,8 @@
 <?php 
-
 /*
  *	Plugin Name: Syncline Poll
- *	Plugin URI: http://syncline.it/syncline-poll/
- *	Description: Run polls on your WordPress posts and pages, using widgets and shortcodes.
+ *	Plugin URI: http://syncline.it/
+ *	Description: Run a poll on your WordPress posts and pages, using widgets and shortcodes.
  *	Version: 1.0
  *	Author: Emmanuel Koranteng
  *	Author URI: http://syncline.it/
@@ -12,37 +11,35 @@
 */
 
 /*
- * Assign global variables
+ * Global variables
  *
 */
-
 $sp_plugin_url = WP_PLUGIN_URL . '/syncline-poll';
 $options = array();
 
 /*
- * Add a link to our plugin in the admin menu
- * under 'Settings > Syncline Poll'
+ * Top-level admin menu
+ * 'Syncline Poll'
  *
 */
-
 function syncline_poll_menu() {
 	/*
-	 * Use the add_options_page function
-	 * add_options_page( $page_title, $menu_title, $capability, $menu_slug, $function )
+	 * add_menu_page( $page_title, $menu_title, $capability, $menu_slug, $function, $icon_url, $position )
 	 *
 	*/
-	add_options_page(
+	add_menu_page(
 		'Syncline Poll',
 		'Syncline Poll',
 		'manage_options',
 		'syncline-poll',
-		'syncline_poll_options_page'
-	);
+		'admin_page',
+		'dashicons-image-filter'
+		);
 }
 add_action('admin_menu', 'syncline_poll_menu');
 
 
-function syncline_poll_options_page() {
+function admin_page() {
 	if (!current_user_can('manage_options')) {
 		wp_die( 'You do not have sufficient permissions to access this page.' );
 	}
@@ -54,7 +51,6 @@ function syncline_poll_options_page() {
 		$options['syncline_poll_name'] = $syncline_poll_name;
 		$options['syncline_poll_yes'] = 0;
 		$options['syncline_poll_no'] = 0;
-		$options['syncline_poll_time'] = time();
 
 		update_option('syncline_poll', $options);
 	}
@@ -64,16 +60,19 @@ function syncline_poll_options_page() {
 		$syncline_poll_name = $options['syncline_poll_name'];
 		$syncline_poll_yes = $options['syncline_poll_yes'];
 		$syncline_poll_no = $options['syncline_poll_no'];
-		$syncline_poll_time = $options['syncline_poll_time'];
+
+		$syncline_poll_count = $syncline_poll_yes + $syncline_poll_no;
+		$syncline_poll_yes_percent = round(($syncline_poll_yes / $syncline_poll_count) * 100);
+		$syncline_poll_no_percent = round(($syncline_poll_no / $syncline_poll_count) * 100);
 
 		$syncline_poll_label = "Change Current Poll";
-		$syncline_submit_label = "Update";
+		$syncline_submit_btn = "Update";
 	} else {
 		$syncline_poll_label = "Create A Poll";
-		$syncline_submit_label = "Save";
+		$syncline_submit_btn = "Save";
 	}
 
-	require 'inc/options-page-wrapper.php';
+	require 'inc/admin.php';
 }
 
 
@@ -87,21 +86,16 @@ class Syncline_Poll_Widget extends WP_Widget {
 	function widget( $args, $instance ) {
 		// Widget output
 		extract($args);
-		global $sp_plugin_url;
-		$title = apply_filters('widget_title', $instance['title']);
-
 		$options = get_option('syncline_poll');
-		$syncline_poll_name = $options['syncline_poll_name'];
-		$syncline_poll_yes = $options['syncline_poll_yes'];
-		$syncline_poll_no = $options['syncline_poll_no'];
+		$title = apply_filters('widget_title', $options['syncline_poll_name']);
 
-		require 'inc/front-end.php';
+		require 'inc/widget-ui.php';
 	}
 
 	function update( $new_instance, $old_instance ) {
 		// Save widget options
 		$instance = $old_instance;
-		$instance['title'] = strip_tags($new_instance['title']);
+		$instance['title'] = $new_instance['title'];
 
 		return $instance;
 	}
@@ -111,25 +105,33 @@ class Syncline_Poll_Widget extends WP_Widget {
 		$options = get_option('syncline_poll');
 		$syncline_poll_name = $options['syncline_poll_name'];
 
-		require 'inc/widget-fields.php';
+		require 'inc/widget-admin.php';
 	}
 }
 
-
-function syncline_poll_register_widgets() {
+/*
+ * Register widget
+ *
+*/
+function syncline_poll_register_widget() {
 	register_widget( 'Syncline_Poll_Widget' );
 }
-add_action( 'widgets_init', 'syncline_poll_register_widgets' );
+add_action( 'widgets_init', 'syncline_poll_register_widget' );
 
-
+/*
+ * Add Shortcode
+ * 'syncline-poll'
+ *
+*/
 function syncline_poll_shortcode($atts, $content = null) {
 	global $post;
 	global $sp_plugin_url;
 
 	$options = get_option('syncline_poll');
 	$syncline_poll_name = $options['syncline_poll_name'];
-	$syncline_poll_yes = $options['syncline_poll_yes'];
-	$syncline_poll_no = $options['syncline_poll_no'];
+	$syncline_poll_count = $options['syncline_poll_yes'] + $options['syncline_poll_no'];
+	$syncline_poll_yes = round(($options['syncline_poll_yes'] / $syncline_poll_count) * 100);
+	$syncline_poll_no = round(($options['syncline_poll_no'] / $syncline_poll_count) * 100);
 
 	ob_start();
 	require 'inc/shortcode.php';
@@ -138,7 +140,10 @@ function syncline_poll_shortcode($atts, $content = null) {
 }
 add_shortcode('syncline-poll', 'syncline_poll_shortcode');
 
-
+/*
+ * Frontend AJAX API
+ *
+*/
 function syncline_poll_count() {
 	$options = get_option('syncline_poll');
 	$feedback = $_POST['feedback'];
@@ -148,34 +153,57 @@ function syncline_poll_count() {
 		$options['syncline_poll_no'] += 1;
 	}
 	update_option('syncline_poll', $options);
-	echo $feedback;
+
+	$syncline_poll_count = $options['syncline_poll_yes'] + $options['syncline_poll_no'];
+	$syncline_poll_yes = round(($options['syncline_poll_yes'] / $syncline_poll_count) * 100);
+	$syncline_poll_no = round(($options['syncline_poll_no'] / $syncline_poll_count) * 100);
+	$syncline_response = array(
+		"yes" => $syncline_poll_yes,
+		"no" => $syncline_poll_no,
+		"all" => $syncline_poll_count
+		);
+	echo json_encode($syncline_response);
 	wp_die();
 }
 add_action('wp_ajax_syncline_poll_count', 'syncline_poll_count');
 
 
 function enable_ajax() {
-?>
+	?>
 	<script>
 		var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
 	</script>
-<?php
+	<?php
 }
 add_action('wp_head', 'enable_ajax');
 
-
+/*
+ * Backend styles
+ *
+*/
 function backend_assets() {
-	wp_enqueue_style('syncline_poll_css', plugins_url('syncline-poll/syncline-poll.css'));
+	wp_enqueue_style('syncline_poll_css', plugins_url('syncline-poll/assets/syncline-poll.css'));
 }
 add_action('admin_head', 'backend_assets');
 
-
+/*
+ * Frontend styles and scripts
+ *
+*/
 function frontend_assets() {
-	wp_enqueue_style('syncline_poll_css', plugins_url('syncline-poll/syncline-poll.css'));
-	wp_enqueue_script('syncline_poll_js', plugins_url('syncline-poll/syncline-poll.js'), array('jquery'), '', true);
+	wp_enqueue_style('syncline_poll_css', plugins_url('syncline-poll/assets/syncline-poll.css'));
+	wp_enqueue_script('syncline_poll_js', plugins_url('syncline-poll/assets/syncline-poll.js'), array('jquery'), '', true);
 }
 add_action('wp_enqueue_scripts', 'frontend_assets');
 
+/*
+ * Clear database when plugin uninstalls
+ *
+*/
+function clean_db() {
+	delete_option('syncline-poll');
+}
+register_uninstall_hook(__FILE__, 'clean_db');
 
 
 ?>
